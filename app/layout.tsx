@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: 'Who Called Us - Reverse Phone Lookup & Spam Call Checker',
   description: 'Find out who called you. Search any US phone number to see reports, comments, and spam warnings from other users. Free reverse phone lookup.',
   keywords: 'who called me, reverse phone lookup, spam calls, phone number search, robocall checker',
+  verification: {
+    google: '4CkjTUekW64amok32b_iarFV_EoGkSLtg6DWQdlefvw',
+  },
 }
 
 export default function RootLayout({
