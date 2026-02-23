@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase'
 import CommentForm from './CommentForm'
+import type { Metadata } from 'next'
 
 interface Props {
   params: Promise<{ phone: string }>
@@ -10,6 +11,22 @@ function formatPhoneDisplay(digits: string) {
     return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
   }
   return digits
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { phone } = await params
+  const digits = phone.replace(/\D/g, '')
+  const formatted = formatPhoneDisplay(digits)
+  return {
+    title: `${formatted} - Phone Number Lookup & Spam Reports | WhoCalledUs`,
+    description: `Is ${formatted} a spam call? See user reports, comments, and spam warnings for this phone number. Free reverse lookup on WhoCalledUs.`,
+    alternates: { canonical: `/number/${digits}` },
+    openGraph: {
+      title: `${formatted} - Is this a spam number?`,
+      description: `Check if ${formatted} is spam. See reports from real users on WhoCalledUs.`,
+      url: `https://whocalledus.net/number/${digits}`,
+    },
+  }
 }
 
 export default async function NumberPage({ params }: Props) {
