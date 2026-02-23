@@ -81,9 +81,9 @@ export default function RootLayout({
             </a>
             <nav style={{ display: 'flex', gap: '16px', fontSize: '14px' }}>
               <a href="/" style={{ color: 'white', textDecoration: 'none' }}>Home</a>
+              <a href="/area-code" style={{ color: 'white', textDecoration: 'none' }}>Area Codes</a>
               <a href="/blog/how-to-block-spam-calls" style={{ color: 'white', textDecoration: 'none' }}>Block Spam</a>
               <a href="/privacy" style={{ color: 'white', textDecoration: 'none' }}>Privacy</a>
-              <a href="/terms" style={{ color: 'white', textDecoration: 'none' }}>Terms</a>
             </nav>
           </div>
         </header>
@@ -99,18 +99,21 @@ export default function RootLayout({
                 <h3 style={{ color: 'white', fontWeight: '600', marginBottom: '12px', fontSize: '14px' }}>Resources</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px' }}>
                   <a href="/blog/how-to-block-spam-calls" style={{ color: '#9ca3af', textDecoration: 'none' }}>How to Block Spam Calls</a>
+                  <a href="/area-code" style={{ color: '#9ca3af', textDecoration: 'none' }}>Area Code Directory</a>
                   <a href="/privacy" style={{ color: '#9ca3af', textDecoration: 'none' }}>Privacy Policy</a>
                   <a href="/terms" style={{ color: '#9ca3af', textDecoration: 'none' }}>Terms of Use</a>
                   <a href="/dmca" style={{ color: '#9ca3af', textDecoration: 'none' }}>DMCA</a>
                 </div>
               </div>
               <div>
-                <h3 style={{ color: 'white', fontWeight: '600', marginBottom: '12px', fontSize: '14px' }}>Popular Lookups</h3>
+                <h3 style={{ color: 'white', fontWeight: '600', marginBottom: '12px', fontSize: '14px' }}>Popular Area Codes</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px' }}>
-                  <a href="/number/8005551234" style={{ color: '#9ca3af', textDecoration: 'none' }}>800 Numbers</a>
-                  <a href="/number/8885551234" style={{ color: '#9ca3af', textDecoration: 'none' }}>888 Numbers</a>
-                  <a href="/number/8775551234" style={{ color: '#9ca3af', textDecoration: 'none' }}>877 Numbers</a>
-                  <a href="/number/8665551234" style={{ color: '#9ca3af', textDecoration: 'none' }}>866 Numbers</a>
+                  <a href="/area-code/212" style={{ color: '#9ca3af', textDecoration: 'none' }}>212 - New York City</a>
+                  <a href="/area-code/213" style={{ color: '#9ca3af', textDecoration: 'none' }}>213 - Los Angeles</a>
+                  <a href="/area-code/312" style={{ color: '#9ca3af', textDecoration: 'none' }}>312 - Chicago</a>
+                  <a href="/area-code/713" style={{ color: '#9ca3af', textDecoration: 'none' }}>713 - Houston</a>
+                  <a href="/area-code/305" style={{ color: '#9ca3af', textDecoration: 'none' }}>305 - Miami</a>
+                  <a href="/area-code/404" style={{ color: '#9ca3af', textDecoration: 'none' }}>404 - Atlanta</a>
                 </div>
               </div>
             </div>
