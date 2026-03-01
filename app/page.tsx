@@ -1,239 +1,169 @@
-'use client'
-
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { supabaseAdmin } from '@/lib/supabase'
+import HomeSearch from './HomeSearch'
 
-const COUNTRY_CODES = [
-  { code: '+1', flag: '🇺🇸', name: 'USA', digits: 10 },
-  { code: '+1', flag: '🇨🇦', name: 'Canada', digits: 10 },
-  { code: '+44', flag: '🇬🇧', name: 'UK', digits: 10 },
-  { code: '+61', flag: '🇦🇺', name: 'Australia', digits: 9 },
-  { code: '+64', flag: '🇳🇿', name: 'New Zealand', digits: 9 },
-  { code: '+353', flag: '🇮🇪', name: 'Ireland', digits: 9 },
-  { code: '+49', flag: '🇩🇪', name: 'Germany', digits: 10 },
-  { code: '+33', flag: '🇫🇷', name: 'France', digits: 9 },
-  { code: '+39', flag: '🇮🇹', name: 'Italy', digits: 10 },
-  { code: '+34', flag: '🇪🇸', name: 'Spain', digits: 9 },
-  { code: '+31', flag: '🇳🇱', name: 'Netherlands', digits: 9 },
-  { code: '+32', flag: '🇧🇪', name: 'Belgium', digits: 9 },
-  { code: '+41', flag: '🇨🇭', name: 'Switzerland', digits: 9 },
-  { code: '+43', flag: '🇦🇹', name: 'Austria', digits: 10 },
-  { code: '+46', flag: '🇸🇪', name: 'Sweden', digits: 9 },
-  { code: '+47', flag: '🇳🇴', name: 'Norway', digits: 8 },
-  { code: '+45', flag: '🇩🇰', name: 'Denmark', digits: 8 },
-  { code: '+358', flag: '🇫🇮', name: 'Finland', digits: 9 },
-  { code: '+351', flag: '🇵🇹', name: 'Portugal', digits: 9 },
-  { code: '+30', flag: '🇬🇷', name: 'Greece', digits: 10 },
-  { code: '+48', flag: '🇵🇱', name: 'Poland', digits: 9 },
-  { code: '+420', flag: '🇨🇿', name: 'Czech Republic', digits: 9 },
-  { code: '+36', flag: '🇭🇺', name: 'Hungary', digits: 9 },
-  { code: '+40', flag: '🇷🇴', name: 'Romania', digits: 9 },
-  { code: '+81', flag: '🇯🇵', name: 'Japan', digits: 10 },
-  { code: '+82', flag: '🇰🇷', name: 'South Korea', digits: 10 },
-  { code: '+65', flag: '🇸🇬', name: 'Singapore', digits: 8 },
-  { code: '+852', flag: '🇭🇰', name: 'Hong Kong', digits: 8 },
-  { code: '+60', flag: '🇲🇾', name: 'Malaysia', digits: 9 },
-  { code: '+66', flag: '🇹🇭', name: 'Thailand', digits: 9 },
-  { code: '+55', flag: '🇧🇷', name: 'Brazil', digits: 11 },
-  { code: '+52', flag: '🇲🇽', name: 'Mexico', digits: 10 },
-  { code: '+54', flag: '🇦🇷', name: 'Argentina', digits: 10 },
-  { code: '+56', flag: '🇨🇱', name: 'Chile', digits: 9 },
-  { code: '+57', flag: '🇨🇴', name: 'Colombia', digits: 10 },
-  { code: '+27', flag: '🇿🇦', name: 'South Africa', digits: 9 },
-  { code: '+971', flag: '🇦🇪', name: 'UAE', digits: 9 },
-  { code: '+966', flag: '🇸🇦', name: 'Saudi Arabia', digits: 9 },
-  { code: '+91', flag: '🇮🇳', name: 'India', digits: 10 },
+function formatPhone(digits: string) {
+  if (digits.startsWith('1') && digits.length === 11) digits = digits.slice(1)
+  if (digits.length === 10) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
+  }
+  return digits
+}
+
+// Top spam numbers from FTC data (updated periodically)
+const TOP_SPAM_NUMBERS = [
+  { number: '8559090816', count: 79, subject: 'Debt Reduction Scam', type: 'Robocall' },
+  { number: '8774196664', count: 51, subject: 'Debt Reduction Scam', type: 'Robocall' },
+  { number: '8669591526', count: 36, subject: 'Debt Reduction Scam', type: 'Robocall' },
+  { number: '5044818700', count: 34, subject: 'Other Spam', type: 'Live Caller' },
+  { number: '3152158150', count: 30, subject: 'Debt Reduction Scam', type: 'Robocall' },
+  { number: '8669591606', count: 18, subject: 'Other Spam', type: 'Live Caller' },
+  { number: '8668786251', count: 18, subject: 'Work from Home Scam', type: 'Robocall' },
+  { number: '8335883805', count: 15, subject: 'Debt Reduction Scam', type: 'Robocall' },
+  { number: '3149678711', count: 14, subject: 'Medical & Prescription Scam', type: 'Live Caller' },
+  { number: '8559090804', count: 13, subject: 'Debt Reduction Scam', type: 'Robocall' },
+  { number: '3152158146', count: 12, subject: 'Debt Reduction Scam', type: 'Robocall' },
+  { number: '8556881429', count: 12, subject: 'Debt Reduction Scam', type: 'Robocall' },
+  { number: '8669590962', count: 11, subject: 'Debt Reduction Scam', type: 'Robocall' },
+  { number: '8335101147', count: 11, subject: 'Government Impersonation', type: 'Robocall' },
+  { number: '8337279955', count: 10, subject: 'Other Spam', type: 'Live Caller' },
+  { number: '8887215215', count: 9, subject: 'Other Spam', type: 'Live Caller' },
+  { number: '2015345822', count: 8, subject: 'Other Spam', type: 'Live Caller' },
+  { number: '8669708121', count: 8, subject: 'Government Impersonation', type: 'Robocall' },
+  { number: '7712473445', count: 8, subject: 'Government Impersonation', type: 'Live Caller' },
+  { number: '6187954446', count: 8, subject: 'Other Spam', type: 'Live Caller' },
 ]
 
-export default function Home() {
-  const [phone, setPhone] = useState('')
-  const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES[0])
-  const [showDropdown, setShowDropdown] = useState(false)
-  const router = useRouter()
-
-  function formatPhone(value: string) {
-    const digits = value.replace(/\D/g, '')
-    if (selectedCountry.code === '+1') {
-      if (digits.length <= 3) return digits
-      if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`
-      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`
-    }
-    return digits
-  }
-
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setPhone(formatPhone(e.target.value))
-  }
-
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault()
-    const digits = phone.replace(/\D/g, '')
-    if (digits.length < 6) return
-    const fullNumber = selectedCountry.code.replace('+', '') + digits
-    router.push(`/number/${fullNumber}`)
-  }
-
-  function selectCountry(country: typeof COUNTRY_CODES[0]) {
-    setSelectedCountry(country)
-    setPhone('')
-    setShowDropdown(false)
-  }
+export default async function Home() {
+  // Fetch recently searched numbers from Supabase
+  const { data: recentNumbers } = await supabaseAdmin
+    .from('phone_numbers')
+    .select('number, search_count')
+    .order('search_count', { ascending: false })
+    .limit(12)
 
   return (
     <main>
-      {/* Hero */}
-      <section style={{ background: 'linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%)', color: 'white', padding: '64px 16px', textAlign: 'center' }}>
-        <div style={{ maxWidth: '680px', margin: '0 auto' }}>
-          <h1 style={{ fontSize: '36px', fontWeight: 'bold', marginBottom: '12px', lineHeight: '1.2' }}>
-            Who Called You?
-          </h1>
-          <p style={{ fontSize: '18px', opacity: 0.9, marginBottom: '36px', lineHeight: '1.6' }}>
-            Search any phone number worldwide to see spam reports and user comments. Free reverse phone lookup.
-          </p>
+      {/* Hero + Search */}
+      <HomeSearch />
 
-          {/* Search Box - contrasting white background */}
-          <div style={{
-            background: 'white',
-            borderRadius: '16px',
-            padding: '24px 28px',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
-          }}>
-            <p style={{ color: '#374151', fontSize: '14px', fontWeight: '600', marginBottom: '14px', textAlign: 'left' }}>
-              Select country &amp; enter phone number
+      {/* Top Spam Numbers - FTC Data */}
+      <section style={{ maxWidth: '900px', margin: '56px auto 0', padding: '0 16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827', marginBottom: '4px' }}>
+              🚨 Most Reported Spam Numbers in the USA
+            </h2>
+            <p style={{ color: '#6b7280', fontSize: '14px' }}>
+              Source: FTC (Federal Trade Commission) official complaint database
             </p>
-            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'stretch' }}>
-              {/* Country selector */}
-              <div style={{ position: 'relative' }}>
-                <button
-                  type="button"
-                  onClick={() => setShowDropdown(!showDropdown)}
-                  style={{
-                    padding: '13px 14px',
-                    fontSize: '16px',
-                    borderRadius: '8px',
-                    border: '2px solid #e5e7eb',
-                    background: '#f9fafb',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    color: '#111',
-                    whiteSpace: 'nowrap',
-                    height: '52px',
-                  }}
-                >
-                  <span>{selectedCountry.flag}</span>
-                  <span style={{ fontSize: '14px', fontWeight: '600' }}>{selectedCountry.code}</span>
-                  <span style={{ fontSize: '12px', color: '#6b7280' }}>▼</span>
-                </button>
-
-                {showDropdown && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    background: 'white',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '10px',
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-                    zIndex: 100,
-                    maxHeight: '300px',
-                    overflowY: 'auto',
-                    minWidth: '240px',
-                    marginTop: '4px',
-                  }}>
-                    {COUNTRY_CODES.map((country, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => selectCountry(country)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px',
-                          width: '100%',
-                          padding: '10px 14px',
-                          border: 'none',
-                          background: selectedCountry.name === country.name ? '#eff6ff' : 'transparent',
-                          cursor: 'pointer',
-                          textAlign: 'left',
-                          fontSize: '14px',
-                          color: '#111',
-                        }}
-                      >
-                        <span style={{ fontSize: '18px' }}>{country.flag}</span>
-                        <span style={{ fontWeight: '500' }}>{country.name}</span>
-                        <span style={{ color: '#6b7280', marginLeft: 'auto' }}>{country.code}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Phone input */}
-              <input
-                type="tel"
-                value={phone}
-                onChange={handleChange}
-                placeholder={selectedCountry.code === '+1' ? '(555) 555-5555' : 'Phone number'}
-                maxLength={16}
-                style={{
-                  padding: '13px 18px',
-                  fontSize: '18px',
-                  borderRadius: '8px',
-                  border: '2px solid #e5e7eb',
-                  flex: 1,
-                  minWidth: '180px',
-                  outline: 'none',
-                  color: '#111',
-                  height: '52px',
-                  boxSizing: 'border-box',
-                }}
-                onFocus={(e) => { e.target.style.borderColor = '#1d4ed8' }}
-                onBlur={(e) => { e.target.style.borderColor = '#e5e7eb' }}
-              />
-
-              {/* Search button */}
-              <button
-                type="submit"
-                style={{
-                  padding: '13px 28px',
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  background: '#f97316',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  height: '52px',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                🔍 Search
-              </button>
-            </form>
-
-            <p style={{ color: '#9ca3af', fontSize: '12px', marginTop: '10px', textAlign: 'left' }}>
-              Free • No registration required • Results are instant
-            </p>
-          </div>
-
-          {/* Quick stats */}
-          <div style={{ display: 'flex', gap: '24px', justifyContent: 'center', marginTop: '28px', flexWrap: 'wrap' }}>
-            {[
-              { value: '2M+', label: 'Phone Reports' },
-              { value: '40+', label: 'Countries Supported' },
-              { value: '100%', label: 'Free to Use' },
-            ].map(stat => (
-              <div key={stat.label} style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '22px', fontWeight: 'bold' }}>{stat.value}</div>
-                <div style={{ fontSize: '13px', opacity: 0.8 }}>{stat.label}</div>
-              </div>
-            ))}
           </div>
         </div>
+
+        <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: '1px solid #f3f4f6', overflow: 'hidden' }}>
+          {TOP_SPAM_NUMBERS.map((item, idx) => (
+            <Link
+              key={item.number}
+              href={`/number/${item.number}`}
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                padding: '14px 20px',
+                borderBottom: idx < TOP_SPAM_NUMBERS.length - 1 ? '1px solid #f3f4f6' : 'none',
+              }}>
+                <div style={{
+                  minWidth: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  background: idx < 3 ? '#dc2626' : idx < 10 ? '#f97316' : '#6b7280',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                }}>
+                  {idx + 1}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: '700', fontSize: '16px', color: '#111827' }}>
+                    {formatPhone(item.number)}
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '2px' }}>
+                    {item.subject}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                  <span style={{
+                    background: '#fee2e2',
+                    color: '#dc2626',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    padding: '2px 8px',
+                    borderRadius: '10px',
+                    whiteSpace: 'nowrap',
+                  }}>
+                    {item.count} FTC reports
+                  </span>
+                  <span style={{
+                    background: item.type === 'Robocall' ? '#fef3c7' : '#f3f4f6',
+                    color: item.type === 'Robocall' ? '#92400e' : '#374151',
+                    fontSize: '11px',
+                    padding: '1px 6px',
+                    borderRadius: '8px',
+                  }}>
+                    {item.type}
+                  </span>
+                </div>
+                <div style={{ color: '#1d4ed8', fontSize: '18px' }}>›</div>
+              </div>
+            </Link>
+          ))}
+        </div>
+        <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '10px' }}>
+          Data sourced from FTC Do Not Call complaints. Numbers ranked by complaint frequency.
+        </p>
       </section>
+
+      {/* Most Searched Numbers */}
+      {recentNumbers && recentNumbers.length > 0 && (
+        <section style={{ maxWidth: '900px', margin: '48px auto 0', padding: '0 16px' }}>
+          <h2 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '8px', color: '#111827' }}>
+            🔍 Most Searched Numbers
+          </h2>
+          <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '20px' }}>
+            Numbers other users are actively looking up right now
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
+            {recentNumbers.map((item) => (
+              <Link
+                key={item.number}
+                href={`/number/${item.number}`}
+                style={{ textDecoration: 'none' }}
+              >
+                <div style={{
+                  background: 'white',
+                  borderRadius: '10px',
+                  padding: '14px 16px',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+                  border: '1px solid #f3f4f6',
+                  cursor: 'pointer',
+                }}>
+                  <div style={{ fontWeight: '600', fontSize: '15px', color: '#1d4ed8' }}>
+                    {formatPhone(item.number)}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '4px' }}>
+                    {item.search_count} searches
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* How It Works */}
       <section style={{ maxWidth: '900px', margin: '56px auto 0', padding: '0 16px' }}>
@@ -311,7 +241,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SEO content - Recent topics */}
+      {/* Common Spam Types */}
       <section style={{ maxWidth: '900px', margin: '40px auto 56px', padding: '0 16px' }}>
         <h2 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '20px', color: '#111827' }}>
           Common Spam Call Types
@@ -322,7 +252,7 @@ export default function Home() {
             { icon: '💳', title: 'Credit Card Scams', desc: 'Calls claiming you owe money or offering fake card deals.' },
             { icon: '🏥', title: 'Medicare/Insurance', desc: 'Unsolicited calls about health insurance or Medicare benefits.' },
             { icon: '🏛️', title: 'IRS Impersonation', desc: 'Fake government calls threatening legal action over taxes.' },
-            { icon: '🏆', title: 'Prize Scams', desc: 'You\'ve won a lottery you never entered - a classic red flag.' },
+            { icon: '🏆', title: 'Prize Scams', desc: "You've won a lottery you never entered - a classic red flag." },
             { icon: '📱', title: 'Tech Support', desc: 'Fake Microsoft or Apple calls about your "infected" computer.' },
           ].map((item) => (
             <div key={item.title} style={{ background: 'white', borderRadius: '10px', padding: '20px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #f3f4f6' }}>
