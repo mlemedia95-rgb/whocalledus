@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { supabaseAdmin } from '@/lib/supabase'
 
 interface Props {
   params: Promise<{ code: string }>
@@ -258,6 +259,318 @@ const AREA_CODE_DATA: Record<string, {
     tips: ['773 covers Chicago neighborhoods outside downtown', 'Many scammers spoof 773 to appear as local Chicago calls', 'ComEd utility impersonation is very common in this area'],
     neighborCodes: ['312', '872', '708', '847'],
   },
+  '720': {
+    city: 'Denver',
+    state: 'Colorado',
+    stateAbbr: 'CO',
+    population: '750,000',
+    region: 'Denver Metro',
+    timezone: 'Mountain Time (MT)',
+    spamTypes: ['Cannabis investment scams', 'Solar panel robocalls', 'IRS impersonation', 'Auto warranty', 'Real estate'],
+    knownSpamPrefixes: ['720-555', '720-800'],
+    tips: ['Denver sees many cannabis-related investment scam calls', 'Solar panel installation robocalls are very common in Colorado', 'Real estate robocalls are frequent in the Denver market'],
+    neighborCodes: ['303', '719', '970'],
+  },
+  '303': {
+    city: 'Denver',
+    state: 'Colorado',
+    stateAbbr: 'CO',
+    population: '750,000',
+    region: 'Denver (original code)',
+    timezone: 'Mountain Time (MT)',
+    spamTypes: ['IRS impersonation', 'Social Security scams', 'Auto warranty', 'Health insurance', 'Solar robocalls'],
+    knownSpamPrefixes: ['303-555', '303-800'],
+    tips: ['303 is the original Denver area code, now shared with 720', 'Many scammers spoof 303 to appear as trusted local numbers', 'Health insurance robocalls are especially active in Colorado'],
+    neighborCodes: ['720', '719', '970'],
+  },
+  '313': {
+    city: 'Detroit',
+    state: 'Michigan',
+    stateAbbr: 'MI',
+    population: '640,000',
+    region: 'Detroit',
+    timezone: 'Eastern Time (ET)',
+    spamTypes: ['Auto warranty scams', 'Debt collection', 'IRS impersonation', 'Utility scams', 'Payday loan robocalls'],
+    knownSpamPrefixes: ['313-555', '313-800'],
+    tips: ['Detroit area has very high rates of auto warranty scam calls', 'DTE Energy utility impersonation calls are common in Michigan', 'Debt collection robocalls are frequently reported in 313'],
+    neighborCodes: ['248', '586', '734'],
+  },
+  '612': {
+    city: 'Minneapolis',
+    state: 'Minnesota',
+    stateAbbr: 'MN',
+    population: '430,000',
+    region: 'Minneapolis',
+    timezone: 'Central Time (CT)',
+    spamTypes: ['IRS impersonation', 'Medicare scams', 'Charity fraud', 'Auto warranty', 'Student loan forgiveness'],
+    knownSpamPrefixes: ['612-555', '612-800'],
+    tips: ['Minneapolis sees many IRS and government agency impersonation calls', 'Xcel Energy utility scams are common in the Twin Cities', 'Medicare scams frequently target the senior population in Minnesota'],
+    neighborCodes: ['651', '763', '952'],
+  },
+  '813': {
+    city: 'Tampa',
+    state: 'Florida',
+    stateAbbr: 'FL',
+    population: '400,000',
+    region: 'Tampa Bay',
+    timezone: 'Eastern Time (ET)',
+    spamTypes: ['Medicare fraud', 'Timeshare cancellation', 'IRS scams', 'Home warranty', 'Insurance robocalls'],
+    knownSpamPrefixes: ['813-555', '813-800'],
+    tips: ['Tampa Bay area has high rates of Medicare and senior-targeted scams', 'Timeshare cancellation scam calls are very common in Florida', 'Hurricane-related contractor fraud calls spike after storm season'],
+    neighborCodes: ['727', '941', '863'],
+  },
+  '727': {
+    city: 'St. Petersburg',
+    state: 'Florida',
+    stateAbbr: 'FL',
+    population: '265,000',
+    region: 'Pinellas County, Tampa Bay',
+    timezone: 'Eastern Time (ET)',
+    spamTypes: ['Medicare scams', 'Social Security', 'Home warranty', 'Timeshare calls', 'Charity fraud'],
+    knownSpamPrefixes: ['727-555', '727-800'],
+    tips: ['St. Pete area has a large senior population targeted by Medicare scams', 'Timeshare cancellation and vacation package scams are common', 'Duke Energy utility impersonation calls are reported frequently'],
+    neighborCodes: ['813', '941', '863'],
+  },
+  '469': {
+    city: 'Dallas',
+    state: 'Texas',
+    stateAbbr: 'TX',
+    population: '1.3 million',
+    region: 'Dallas Metro (overlay)',
+    timezone: 'Central Time (CT)',
+    spamTypes: ['Real estate robocalls', 'Business loan scams', 'Auto warranty', 'IRS impersonation', 'Debt collection'],
+    knownSpamPrefixes: ['469-555', '469-800'],
+    tips: ['469 overlays Dallas alongside 214 and 972', 'Many scammers use 469 to spoof local Dallas calls', 'Real estate and mortgage robocalls are very active in DFW area'],
+    neighborCodes: ['214', '972', '817'],
+  },
+  '972': {
+    city: 'Dallas suburbs',
+    state: 'Texas',
+    stateAbbr: 'TX',
+    population: '2 million',
+    region: 'DFW suburbs (Plano, Irving, Garland)',
+    timezone: 'Central Time (CT)',
+    spamTypes: ['Solar panel robocalls', 'Auto warranty', 'Health insurance', 'IRS scams', 'Tech support'],
+    knownSpamPrefixes: ['972-555', '972-800'],
+    tips: ['972 covers the affluent Dallas suburbs with many real estate calls', 'Tech support scams targeting corporate employees are common', 'Solar installation robocalls are very active in the DFW suburbs'],
+    neighborCodes: ['214', '469', '817'],
+  },
+  '512': {
+    city: 'Austin',
+    state: 'Texas',
+    stateAbbr: 'TX',
+    population: '980,000',
+    region: 'Austin',
+    timezone: 'Central Time (CT)',
+    spamTypes: ['Tech company impersonation', 'Student loan scams', 'Crypto investment fraud', 'IRS impersonation', 'Real estate robocalls'],
+    knownSpamPrefixes: ['512-555', '512-800'],
+    tips: ['Austin\'s tech industry makes it a target for tech company impersonation scams', 'Crypto and investment fraud calls are common in the Austin tech scene', 'Student loan forgiveness scams target the large university population'],
+    neighborCodes: ['737', '210', '830'],
+  },
+  '210': {
+    city: 'San Antonio',
+    state: 'Texas',
+    stateAbbr: 'TX',
+    population: '1.5 million',
+    region: 'San Antonio',
+    timezone: 'Central Time (CT)',
+    spamTypes: ['Military impersonation scams', 'IRS scams', 'Medicare fraud', 'Auto warranty', 'Payday loan robocalls'],
+    knownSpamPrefixes: ['210-555', '210-800'],
+    tips: ['San Antonio has a large military population targeted by military-themed scams', 'Medicare scams are very active due to the large senior population', 'CPS Energy utility impersonation calls are commonly reported'],
+    neighborCodes: ['512', '830', '726'],
+  },
+  '678': {
+    city: 'Atlanta',
+    state: 'Georgia',
+    stateAbbr: 'GA',
+    population: '500,000',
+    region: 'Atlanta Metro (overlay)',
+    timezone: 'Eastern Time (ET)',
+    spamTypes: ['IRS scams', 'Social Security', 'Debt collection', 'Auto warranty', 'Health insurance'],
+    knownSpamPrefixes: ['678-555', '678-800'],
+    tips: ['678 overlays Atlanta alongside 404 and 770', 'Many scammers spoof 678 to appear as local Atlanta calls', 'Georgia Power utility impersonation scams are common'],
+    neighborCodes: ['404', '770', '470'],
+  },
+  '704': {
+    city: 'Charlotte',
+    state: 'North Carolina',
+    stateAbbr: 'NC',
+    population: '900,000',
+    region: 'Charlotte',
+    timezone: 'Eastern Time (ET)',
+    spamTypes: ['Banking scams', 'IRS impersonation', 'Auto warranty', 'Mortgage robocalls', 'Health insurance'],
+    knownSpamPrefixes: ['704-555', '704-800'],
+    tips: ['Charlotte is a major banking hub — many bank impersonation scams', 'Duke Energy utility impersonation is very common in Charlotte', 'Mortgage and real estate robocalls are very active in the growing Charlotte market'],
+    neighborCodes: ['980', '803', '336'],
+  },
+  '615': {
+    city: 'Nashville',
+    state: 'Tennessee',
+    stateAbbr: 'TN',
+    population: '700,000',
+    region: 'Nashville',
+    timezone: 'Central Time (CT)',
+    spamTypes: ['Real estate robocalls', 'IRS impersonation', 'Auto warranty', 'Health insurance', 'Charity fraud'],
+    knownSpamPrefixes: ['615-555', '615-800'],
+    tips: ['Nashville\'s real estate boom has created a surge in real estate robocalls', 'TVA and Nashville Electric Service impersonation calls are reported', 'Many scammers use Nashville numbers to appear local to Tennessee'],
+    neighborCodes: ['629', '931', '423'],
+  },
+  '901': {
+    city: 'Memphis',
+    state: 'Tennessee',
+    stateAbbr: 'TN',
+    population: '650,000',
+    region: 'Memphis',
+    timezone: 'Central Time (CT)',
+    spamTypes: ['Debt collection', 'IRS scams', 'Auto warranty', 'Payday loan robocalls', 'Medicare fraud'],
+    knownSpamPrefixes: ['901-555', '901-800'],
+    tips: ['Memphis has high rates of debt collection robocalls', 'MLGW (utility) impersonation scams are common in Memphis', 'Payday loan and credit scams frequently target Memphis residents'],
+    neighborCodes: ['731', '662'],
+  },
+  '314': {
+    city: 'St. Louis',
+    state: 'Missouri',
+    stateAbbr: 'MO',
+    population: '300,000',
+    region: 'St. Louis',
+    timezone: 'Central Time (CT)',
+    spamTypes: ['IRS impersonation', 'Utility scams', 'Auto warranty', 'Debt collection', 'Social Security scams'],
+    knownSpamPrefixes: ['314-555', '314-800'],
+    tips: ['Ameren (electric utility) impersonation is very common in St. Louis', 'Many Medicare and senior-targeted scam calls in the St. Louis area', 'IRS impersonation calls are among the top reported scams'],
+    neighborCodes: ['636', '573', '618'],
+  },
+  '216': {
+    city: 'Cleveland',
+    state: 'Ohio',
+    stateAbbr: 'OH',
+    population: '370,000',
+    region: 'Cleveland',
+    timezone: 'Eastern Time (ET)',
+    spamTypes: ['Utility scams', 'IRS impersonation', 'Medicare fraud', 'Auto warranty', 'Debt collection'],
+    knownSpamPrefixes: ['216-555', '216-800'],
+    tips: ['Cleveland Electric Illuminating/FirstEnergy impersonation calls are common', 'Medicare scams target the large senior population in Northeast Ohio', 'Many scammers spoof Cleveland numbers to appear local and trustworthy'],
+    neighborCodes: ['440', '330', '234'],
+  },
+  '614': {
+    city: 'Columbus',
+    state: 'Ohio',
+    stateAbbr: 'OH',
+    population: '900,000',
+    region: 'Columbus',
+    timezone: 'Eastern Time (ET)',
+    spamTypes: ['Student loan scams', 'IRS impersonation', 'Auto warranty', 'Health insurance', 'Charity fraud'],
+    knownSpamPrefixes: ['614-555', '614-800'],
+    tips: ['Columbus has a large student population targeted by student loan scams', 'AEP Ohio utility impersonation calls are frequently reported', 'Health insurance robocalls are among the most common in Columbus'],
+    neighborCodes: ['380', '740', '419'],
+  },
+  '919': {
+    city: 'Raleigh',
+    state: 'North Carolina',
+    stateAbbr: 'NC',
+    population: '470,000',
+    region: 'Raleigh / Research Triangle',
+    timezone: 'Eastern Time (ET)',
+    spamTypes: ['Tech company impersonation', 'Student loan scams', 'IRS impersonation', 'Real estate robocalls', 'Health insurance'],
+    knownSpamPrefixes: ['919-555', '919-800'],
+    tips: ['Raleigh\'s Research Triangle tech sector attracts tech support and company impersonation scams', 'Real estate robocalls are very common in the fast-growing Triangle market', 'Student loan scams target the large university population in the area'],
+    neighborCodes: ['984', '910', '336'],
+  },
+  '623': {
+    city: 'Phoenix West Valley',
+    state: 'Arizona',
+    stateAbbr: 'AZ',
+    population: '250,000',
+    region: 'Glendale / Peoria / Surprise',
+    timezone: 'Mountain Time (no DST)',
+    spamTypes: ['Medicare scams', 'Solar panel robocalls', 'Home warranty', 'IRS impersonation', 'Real estate'],
+    knownSpamPrefixes: ['623-555', '623-800'],
+    tips: ['623 covers Phoenix\'s fast-growing west suburbs', 'Solar panel installation robocalls are extremely common in Arizona', 'Medicare scams target the large retiree population in the West Valley'],
+    neighborCodes: ['602', '480', '928'],
+  },
+  '954': {
+    city: 'Fort Lauderdale',
+    state: 'Florida',
+    stateAbbr: 'FL',
+    population: '185,000',
+    region: 'Broward County',
+    timezone: 'Eastern Time (ET)',
+    spamTypes: ['Medicare fraud', 'Timeshare scams', 'IRS impersonation', 'Insurance robocalls', 'Charity fraud'],
+    knownSpamPrefixes: ['954-555', '954-800'],
+    tips: ['Fort Lauderdale area is a major hub for Medicare and health fraud scams', 'Timeshare cancellation scams are very common in the South Florida area', 'Many debt collection scams originate from the Broward County area'],
+    neighborCodes: ['305', '786', '561'],
+  },
+  '561': {
+    city: 'West Palm Beach',
+    state: 'Florida',
+    stateAbbr: 'FL',
+    population: '115,000',
+    region: 'Palm Beach County',
+    timezone: 'Eastern Time (ET)',
+    spamTypes: ['Investment scams', 'Medicare fraud', 'Charity fraud', 'IRS impersonation', 'Timeshare cancellation'],
+    knownSpamPrefixes: ['561-555', '561-800'],
+    tips: ['Palm Beach County\'s wealthy demographic is targeted by investment and financial scams', 'Medicare and senior-targeted scams are very active in Palm Beach', 'FPL (Florida Power & Light) utility impersonation calls are common'],
+    neighborCodes: ['954', '772', '305'],
+  },
+  '347': {
+    city: 'New York City',
+    state: 'New York',
+    stateAbbr: 'NY',
+    population: '8.3 million',
+    region: 'Brooklyn/Queens/Bronx (overlay)',
+    timezone: 'Eastern Time (ET)',
+    spamTypes: ['Debt collection', 'IRS impersonation', 'Utility scams', 'Fake package delivery', 'Tech support'],
+    knownSpamPrefixes: ['347-555', '347-800'],
+    tips: ['347 is an overlay code for the NYC outer boroughs alongside 718', 'Con Edison utility impersonation is very common in this area', 'Package delivery scam calls are frequently reported in NYC'],
+    neighborCodes: ['718', '212', '646', '917'],
+  },
+  '917': {
+    city: 'New York City',
+    state: 'New York',
+    stateAbbr: 'NY',
+    population: '8.3 million',
+    region: 'New York City (mobile/overlay)',
+    timezone: 'Eastern Time (ET)',
+    spamTypes: ['Tech support scams', 'IRS impersonation', 'Fake delivery notifications', 'Credit card fraud', 'Social Security'],
+    knownSpamPrefixes: ['917-555', '917-800'],
+    tips: ['917 is primarily used for NYC mobile numbers', 'Many scammers spoof 917 to appear as NYC calls to out-of-state targets', 'Credit card and financial scam calls are common with 917 spoofed numbers'],
+    neighborCodes: ['212', '646', '718', '347'],
+  },
+  '424': {
+    city: 'Los Angeles',
+    state: 'California',
+    stateAbbr: 'CA',
+    population: '3.9 million',
+    region: 'West LA / South Bay (overlay)',
+    timezone: 'Pacific Time (PT)',
+    spamTypes: ['Entertainment scams', 'Mortgage robocalls', 'IRS impersonation', 'Auto warranty', 'Crypto investment'],
+    knownSpamPrefixes: ['424-555', '424-800'],
+    tips: ['424 overlays the 310 area code in West LA and South Bay', 'Entertainment industry casting scams are unique to the LA area', 'Crypto investment scams frequently use LA-area spoofed numbers'],
+    neighborCodes: ['310', '213', '323', '818'],
+  },
+  '818': {
+    city: 'San Fernando Valley',
+    state: 'California',
+    stateAbbr: 'CA',
+    population: '1.8 million',
+    region: 'San Fernando Valley (LA)',
+    timezone: 'Pacific Time (PT)',
+    spamTypes: ['Real estate robocalls', 'IRS impersonation', 'Auto warranty', 'Health insurance', 'Solar panel calls'],
+    knownSpamPrefixes: ['818-555', '818-800'],
+    tips: ['The San Fernando Valley is a major residential area with high real estate robocall rates', 'Solar panel installation calls are very common in the Valley', 'Many IRS and government impersonation scams target the diverse 818 communities'],
+    neighborCodes: ['747', '310', '213', '323'],
+  },
+  '619': {
+    city: 'San Diego',
+    state: 'California',
+    stateAbbr: 'CA',
+    population: '1.4 million',
+    region: 'San Diego',
+    timezone: 'Pacific Time (PT)',
+    spamTypes: ['Military impersonation scams', 'Medicare fraud', 'IRS scams', 'Real estate robocalls', 'Solar panel calls'],
+    knownSpamPrefixes: ['619-555', '619-800'],
+    tips: ['San Diego\'s large military population is targeted by military-themed scam calls', 'Medicare scams are very common due to the large retiree population in San Diego', 'Solar panel robocalls are among the most reported in Southern California'],
+    neighborCodes: ['858', '760', '442'],
+  },
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -288,6 +601,19 @@ export default async function AreaCodePage({ params }: Props) {
   const data = AREA_CODE_DATA[code]
 
   if (!data) notFound()
+
+  // Fetch top reported numbers for this area code from Supabase
+  const { data: areaNumbers } = await supabaseAdmin
+    .from('phone_numbers')
+    .select('number, search_count')
+    .like('number', `${code}%`)
+    .order('search_count', { ascending: false })
+    .limit(10)
+
+  function fmtNum(n: string) {
+    if (n.length === 10) return `(${n.slice(0,3)}) ${n.slice(3,6)}-${n.slice(6)}`
+    return n
+  }
 
   return (
     <main style={{ maxWidth: '860px', margin: '0 auto', padding: '32px 16px 64px' }}>
@@ -381,6 +707,30 @@ export default async function AreaCodePage({ params }: Props) {
           </div>
         </div>
       </div>
+
+      {/* Most Reported Numbers for this area code */}
+      {areaNumbers && areaNumbers.length > 0 && (
+        <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: '1px solid #f3f4f6', marginBottom: '28px' }}>
+          <h2 style={{ fontSize: '17px', fontWeight: '700', marginBottom: '16px', color: '#111827' }}>
+            🚨 Most Searched {code} Numbers on WhoCalledUs
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {areaNumbers.map((item, idx) => (
+              <Link key={item.number} href={`/number/${item.number}`} style={{ textDecoration: 'none' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: idx % 2 === 0 ? '#f9fafb' : 'white', borderRadius: '8px', border: '1px solid #f3f4f6', gap: '12px', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ background: '#fee2e2', color: '#dc2626', fontWeight: '700', fontSize: '12px', padding: '2px 8px', borderRadius: '10px', minWidth: '24px', textAlign: 'center' }}>
+                      {idx + 1}
+                    </span>
+                    <span style={{ fontWeight: '600', color: '#1d4ed8', fontSize: '15px' }}>{fmtNum(item.number)}</span>
+                  </div>
+                  <span style={{ color: '#9ca3af', fontSize: '13px' }}>{item.search_count} searches →</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Nearby area codes */}
       <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: '1px solid #f3f4f6', marginBottom: '28px' }}>

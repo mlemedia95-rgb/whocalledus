@@ -41,6 +41,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
     { url: `${baseUrl}/blog/how-to-block-spam-calls`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.9 },
+    { url: `${baseUrl}/blog/irs-scam-phone-numbers`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.88 },
+    { url: `${baseUrl}/blog/medicare-scam-calls`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.88 },
+    { url: `${baseUrl}/blog/social-security-scam-calls`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.88 },
+    { url: `${baseUrl}/blog/robocall-blocker-apps`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.87 },
+    { url: `${baseUrl}/blog/florida-phone-scams`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.87 },
+    { url: `${baseUrl}/blog/texas-phone-scams`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.87 },
+    { url: `${baseUrl}/blog/california-phone-scams`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.87 },
+    { url: `${baseUrl}/blog/new-york-phone-scams`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.87 },
+    { url: `${baseUrl}/blog/ohio-phone-scams`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.87 },
     { url: `${baseUrl}/area-code`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     ...AREA_CODES.map(code => ({
       url: `${baseUrl}/area-code/${code}`,
