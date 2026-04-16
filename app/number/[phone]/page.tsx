@@ -9,7 +9,6 @@ interface Props {
 }
 
 function formatPhoneDisplay(digits: string) {
-  // Strip leading country code 1 for US numbers
   const d = digits.startsWith('1') && digits.length === 11 ? digits.slice(1) : digits
   if (d.length === 10) {
     return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`
@@ -27,7 +26,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const digits = phone.replace(/\D/g, '')
   const formatted = formatPhoneDisplay(digits)
 
-  // Get report count for dynamic description
   const { count } = await supabaseAdmin
     .from('comments')
     .select('*', { count: 'exact', head: true })
@@ -47,11 +45,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: { canonical: `/number/${digits}` },
+    alternates: { canonical: `https://www.whocalledus.net/number/${digits}` },
     openGraph: {
       title: `${formatted} - Is this a spam number?`,
       description: `Check if ${formatted} is spam. See reports from real users on WhoCalledUs.`,
-      url: `https://whocalledus.net/number/${digits}`,
+      url: `https://www.whocalledus.net/number/${digits}`,
       type: 'website',
     },
     twitter: {
@@ -68,7 +66,6 @@ export default async function NumberPage({ params }: Props) {
   const formatted = formatPhoneDisplay(digits)
   const areaCode = getAreaCode(digits)
 
-  // Increment search count
   const { data: existing } = await supabaseAdmin
     .from('phone_numbers')
     .select('id, search_count')
@@ -86,7 +83,6 @@ export default async function NumberPage({ params }: Props) {
       .insert({ number: digits, search_count: 1 })
   }
 
-  // Get comments
   const { data: comments } = await supabaseAdmin
     .from('comments')
     .select('*')
@@ -103,13 +99,12 @@ export default async function NumberPage({ params }: Props) {
   const riskLevel = spamPercent >= 70 ? 'HIGH RISK' : spamPercent >= 30 ? 'MODERATE RISK' : totalComments === 0 ? 'NOT YET RATED' : 'LOW RISK'
   const riskColor = spamPercent >= 70 ? '#dc2626' : spamPercent >= 30 ? '#f97316' : totalComments === 0 ? '#6b7280' : '#16a34a'
 
-  // Schema.org structured data
   const schemaData = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
     name: `${formatted} - Phone Number Lookup`,
     description: `User reports and spam information for phone number ${formatted}`,
-    url: `https://whocalledus.net/number/${digits}`,
+    url: `https://www.whocalledus.net/number/${digits}`,
     mainEntity: {
       '@type': 'Thing',
       name: formatted,
@@ -130,14 +125,12 @@ export default async function NumberPage({ params }: Props) {
 
   return (
     <main style={{ maxWidth: '800px', margin: '32px auto', padding: '0 16px' }}>
-      {/* Schema Markup */}
       <Script
         id="number-schema"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
       />
 
-      {/* Breadcrumb */}
       <nav style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px' }}>
         <Link href="/" style={{ color: '#1d4ed8', textDecoration: 'none' }}>Home</Link>
         <span style={{ margin: '0 6px' }}>›</span>
@@ -146,14 +139,11 @@ export default async function NumberPage({ params }: Props) {
         <span>{formatted}</span>
       </nav>
 
-      {/* Number Header */}
       <div style={{ background: 'white', borderRadius: '12px', padding: '28px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', marginBottom: '20px', border: '1px solid #f3f4f6' }}>
         <h1 style={{ fontSize: '30px', fontWeight: 'bold', marginBottom: '6px', color: '#111827' }}>{formatted}</h1>
         <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '20px' }}>
           Phone number lookup — United States ({areaCode} area code)
         </p>
-
-        {/* Risk Badge */}
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
           <div style={{
             display: 'inline-flex',
@@ -185,7 +175,6 @@ export default async function NumberPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Safety Summary Box - shown when no reports yet */}
       {totalComments === 0 && (
         <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '12px', padding: '24px', marginBottom: '20px' }}>
           <h2 style={{ fontSize: '16px', fontWeight: 'bold', color: '#92400e', marginBottom: '10px' }}>
@@ -206,7 +195,6 @@ export default async function NumberPage({ params }: Props) {
         </div>
       )}
 
-      {/* Stats when there are reports */}
       {totalComments > 0 && (
         <div style={{ background: 'white', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', marginBottom: '20px', border: '1px solid #f3f4f6' }}>
           <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '14px', color: '#111827' }}>
@@ -235,7 +223,6 @@ export default async function NumberPage({ params }: Props) {
         </div>
       )}
 
-      {/* Comments */}
       <div style={{ background: 'white', borderRadius: '12px', padding: '28px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', marginBottom: '20px', border: '1px solid #f3f4f6' }}>
         <h2 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '20px', color: '#111827' }}>
           User Reports ({totalComments})
@@ -291,10 +278,8 @@ export default async function NumberPage({ params }: Props) {
         )}
       </div>
 
-      {/* Comment Form */}
       <CommentForm phoneNumber={digits} />
 
-      {/* SEO Content Block */}
       <div style={{ background: 'white', borderRadius: '12px', padding: '24px 28px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', marginTop: '20px', border: '1px solid #f3f4f6' }}>
         <h2 style={{ fontSize: '17px', fontWeight: 'bold', marginBottom: '12px', color: '#111827' }}>
           About {formatted}
@@ -317,7 +302,6 @@ export default async function NumberPage({ params }: Props) {
         </p>
       </div>
 
-      {/* Related Links */}
       <div style={{ display: 'flex', gap: '12px', marginTop: '16px', flexWrap: 'wrap' }}>
         <Link
           href={`/area-code/${areaCode}`}
@@ -333,7 +317,6 @@ export default async function NumberPage({ params }: Props) {
         </Link>
       </div>
 
-      {/* Disclaimer */}
       <div style={{ background: '#f9fafb', borderRadius: '10px', padding: '16px', marginTop: '16px', fontSize: '13px', color: '#6b7280', border: '1px solid #f3f4f6' }}>
         <strong>Disclaimer:</strong> All reports are submitted by users. WhoCalledUs.net is not a Consumer Reporting Agency (CRA).
         This information should not be used for FCRA-regulated purposes including credit, employment, or housing decisions.
